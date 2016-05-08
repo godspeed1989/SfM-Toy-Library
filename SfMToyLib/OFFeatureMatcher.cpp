@@ -29,6 +29,7 @@
 
 #include "OFFeatureMatcher.h"
 #include <opencv2/video/video.hpp>
+#include <opencv2/xfeatures2d/nonfree.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #ifdef HAVE_OPENCV_GPU
 #include <opencv2/gpu/gpu.hpp>
@@ -48,6 +49,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace xfeatures2d;
 
 //c'tor
 OFFeatureMatcher::OFFeatureMatcher(
@@ -57,7 +59,7 @@ OFFeatureMatcher::OFFeatureMatcher(
 AbstractFeatureMatcher(_use_gpu),imgpts(imgpts_), imgs(imgs_)
 {
 	//detect keypoints for all images
-	FastFeatureDetector ffd;
+	SiftFeatureDetector ffd;
 //	DenseFeatureDetector ffd;
 	ffd.detect(imgs, imgpts);
 }

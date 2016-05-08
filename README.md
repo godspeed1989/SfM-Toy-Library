@@ -9,7 +9,7 @@ To compile use CMake: http://www.cmake.org
 ### Prerequisite
 - OpenCV: http://www.opencv.org
 - Eigen3: http://eigen.tuxfamily.org/index.php?title=Main_Page
-- OPTIONAL: SSBA & Sparsesuite: https://github.com/chzach/SSBA/tree/master/SSBA-4.0 (bundeled with the library in the '3rdparty' directory) (Now optional when using the USE_SSBA=OFF option)
+- SSBA & Sparsesuite: https://github.com/chzach/SSBA/tree/master/SSBA-4.0 (bundeled with the library in the '3rdparty' directory) (Now optional when using the USE_SSBA=OFF option)
 - OPTIONAL: Qt 5.x (for the GUI) and libQGLViewer: http://www.libqglviewer.com/ for the 3D visualization of the point cloud
 
 ### How to make

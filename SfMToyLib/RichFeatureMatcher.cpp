@@ -30,26 +30,27 @@
 #include "RichFeatureMatcher.h"
 
 #include "FindCameraMatrices.h"
-#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/xfeatures2d.hpp>
+#include <opencv2/xfeatures2d/nonfree.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/nonfree/nonfree.hpp>
 
 #include <iostream>
 #include <set>
 
 using namespace std;
 using namespace cv;
+using namespace xfeatures2d;
 
 //c'tor
 RichFeatureMatcher::RichFeatureMatcher(std::vector<cv::Mat>& imgs_, 
 									   std::vector<std::vector<cv::KeyPoint> >& imgpts_) :
 	imgpts(imgpts_), imgs(imgs_)
 {
-	detector = FeatureDetector::create("PyramidFAST");
-	extractor = DescriptorExtractor::create("ORB");
+	detector = SIFT::create();
+	extractor = SIFT::create();
 	
 	std::cout << " -------------------- extract feature points for all images -------------------\n";
 	
@@ -85,42 +86,35 @@ void RichFeatureMatcher::MatchFeatures(int idx_i, int idx_j, vector<DMatch>* mat
 	}
 	
 	//matching descriptor vectors using Brute Force matcher
-	BFMatcher matcher(NORM_HAMMING,true); //allow cross-check
+	FlannBasedMatcher matcher;
 	std::vector< DMatch > matches_;
 	if (matches == NULL) {
 		matches = &matches_;
 	}
-	
-	vector<double> dists;
 	if (matches->size() == 0) {
-		vector<vector<DMatch> > nn_matches;
-		matcher.knnMatch(descriptors_1,descriptors_2,nn_matches,1);
-		matches->clear();
-		for(int i=0;i<nn_matches.size();i++) {
-			if(nn_matches[i].size()>0) {
-				matches->push_back(nn_matches[i][0]);
-				double dist = matches->back().distance;
-				if(fabs(dist) > 10000) dist = 1.0;
-				matches->back().distance = dist;
-				dists.push_back(dist);
-			}
-		}
+        	matcher.match( descriptors_1, descriptors_2, *matches );
+    	}
+
+	double max_dist = 0; double min_dist = 1000.0;
+	//-- Quick calculation of max and min distances between keypoints
+	for(unsigned int i = 0; i < matches->size(); i++ )
+	{ 
+		double dist = (*matches)[i].distance;
+		if (dist>1000.0) { dist = 1000.0; }
+		if( dist < min_dist ) min_dist = dist;
+		if( dist > max_dist ) max_dist = dist;
 	}
-	
-	double max_dist = 0; double min_dist = 0.0;
-	cv::minMaxIdx(dists,&min_dist,&max_dist);
-	
+
 #ifdef __SFM__DEBUG__
 	printf("-- Max dist : %f \n", max_dist );
 	printf("-- Min dist : %f \n", min_dist );
 #endif
 	
-	vector<KeyPoint> imgpts1_good,imgpts2_good;
-	
+	vector<KeyPoint> imgpts1_good,imgpts2_good;	
 	if (min_dist < 10.0) {
 		min_dist = 10.0;
 	}
-	
+
 	// Eliminate any re-matching of training points (multiple queries to one training)
 	double cutoff = 4.0*min_dist;
 	std::set<int> existing_trainIdx;

@@ -92,7 +92,7 @@ void MultiCameraPnP::GetBaseLineTriangulation() {
 	m_first_view = m_second_view = 0;
 	//reverse iterate by number of matches
 	for(list<pair<int,pair<int,int> > >::iterator highest_pair = matches_sizes.begin(); 
-		highest_pair != matches_sizes.end() && !goodF; 
+		highest_pair != matches_sizes.end() && !goodF; // 2 views only
 		++highest_pair) 
 	{
 		m_second_view = (*highest_pair).second.second;
@@ -231,9 +231,13 @@ bool MultiCameraPnP::FindPoseEstimation(
 	if(!use_gpu) {
 		//use CPU
 		double minVal,maxVal; cv::minMaxIdx(imgPoints,&minVal,&maxVal);
-		CV_PROFILE("solvePnPRansac",cv::solvePnPRansac(ppcloud, imgPoints, K, distortion_coeff, rvec, t, true, 1000, 0.006 * maxVal, 0.25 * (double)(imgPoints.size()), inliers, CV_EPNP);)
-		//CV_PROFILE("solvePnP",cv::solvePnP(ppcloud, imgPoints, K, distortion_coeff, rvec, t, true, CV_EPNP);)
-	} else {
+		cout << "start solvePnPRansac\n";
+		//CV_PROFILE("solvePnPRansac",cv::solvePnPRansac(ppcloud, imgPoints, K, distortion_coeff, rvec, t, true, 1000, 0.006 * maxVal, 0.25 * (double)(imgPoints.size()), inliers, CV_EPNP);)
+		CV_PROFILE("solvePnP",cv::solvePnP(ppcloud, imgPoints, K, distortion_coeff, rvec, t, true, CV_EPNP);)
+		cout << "end solvePnPRansac\n";
+	}
+	else
+	{
 #ifdef HAVE_OPENCV_GPU
 		//use GPU ransac
 		//make sure datatstructures are cv::gpu compatible
@@ -536,7 +540,7 @@ void MultiCameraPnP::RecoverDepthFromImages() {
 		}
 		int i = max_2d3d_view; //highest 2d3d matching view
 
-		std::cout << "-------------------------- " << imgs_names[i] << " --------------------------\n";
+		std::cout << "Depth ---------------------- " << imgs_names[i] << " --------------------------\n";
 		done_views.insert(i); // don't repeat it for now
 
 		bool pose_estimated = FindPoseEstimation(i,rvec,t,R,max_3d,max_2d);
@@ -545,10 +549,10 @@ void MultiCameraPnP::RecoverDepthFromImages() {
 
 		//store estimated pose	
 		Pmats[i] = cv::Matx34d	(R(0,0),R(0,1),R(0,2),t(0),
-								 R(1,0),R(1,1),R(1,2),t(1),
-								 R(2,0),R(2,1),R(2,2),t(2));
+					 R(1,0),R(1,1),R(1,2),t(1),
+					 R(2,0),R(2,1),R(2,2),t(2));
 		
-		// start triangulating with previous GOOD views
+		std::cout << "start triangulating with previous GOOD views\n";
 		for (set<int>::iterator done_view = good_views.begin(); done_view != good_views.end(); ++done_view) 
 		{
 			int view = *done_view;

@@ -1,50 +1,27 @@
-/*
- *  BundleAdjuster.cpp
- *  ExploringSfMWithOpenCV
- *
- *  Created by Roy Shilkrot on 5/18/12.
- *  The MIT License (MIT)
- *
- *  Copyright (c) 2013 Roy Shilkrot
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
- *
- */
+/*****************************************************************************
+*   ExploringSfMWithOpenCV
+******************************************************************************
+*   by Roy Shilkrot, 5th Dec 2012
+*   http://www.morethantechnical.com/
+******************************************************************************
+*   Ch4 of the book "Mastering OpenCV with Practical Computer Vision Projects"
+*   Copyright Packt Publishing 2012.
+*   http://www.packtpub.com/cool-projects-with-opencv/book
+*****************************************************************************/
 
 #include "BundleAdjuster.h"
 #include "Common.h"
 
-using namespace cv; 
-using namespace std;
-
-#ifndef HAVE_SSBA
-#include <opencv2/contrib/contrib.hpp>
-#endif
-
 #ifdef HAVE_SSBA
 #define V3DLIB_ENABLE_SUITESPARSE
 
-#include "../3rdparty/SSBA-3.0/Math/v3d_linear.h"
-#include "../3rdparty/SSBA-3.0/Base/v3d_vrmlio.h"
-#include "../3rdparty/SSBA-3.0/Geometry/v3d_metricbundle.h"
+#include <Math/v3d_linear.h>
+#include <Base/v3d_vrmlio.h>
+#include <Geometry/v3d_metricbundle.h>
 
 using namespace V3D;
+using namespace std;
+using namespace cv; 
 
 namespace
 {
